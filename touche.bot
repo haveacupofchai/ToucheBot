@@ -1,0 +1,52 @@
+{
+  "name": "touche",
+  "padlock": "mMkfBVF3YZf/GKZ35+KWqQ==!Ne0zYZM/ZVf78yvrDcKJtRyrfRNQDFWGEgLfLREwL7RCNdfpxMiZbHIBGXVf1x4L",
+  "version": "2.0",
+  "services": [
+    {
+      "tenantId": "1fb029fa-7975-42f2-bec8-064957c4c143",
+      "subscriptionId": "43fda02f-e249-4b49-a426-dc02b4d82fcb",
+      "resourceGroup": "Default-NotificationHubs-WestUS",
+      "serviceName": "touche",
+      "type": "abs",
+      "name": "touche",
+      "id": "1"
+    },
+    {
+      "connectionString": "sJDySYYpwkk5iOJZVFH+LA==!CtAtij+kqzQjo6J7PjkMNK/tbmduyzIU3mcXp54nhF8gVsKWwl66c9NVnyJzdMAktNbAZb1L4KYpnYcnTPUZzcp3XqjZj0IDqhvDP5/eYdlUGkbNmU+AgGX2xvHZG1WCsm4SoAYvChSDDM5gNIOqgkXdol2e0bfIkUMZKt2LwkEDOenmaG4J3fIqTNRostZTToQ8JZX0nXTspy7wh7/r/g==",
+      "tenantId": "1fb029fa-7975-42f2-bec8-064957c4c143",
+      "subscriptionId": "43fda02f-e249-4b49-a426-dc02b4d82fcb",
+      "resourceGroup": "Default-NotificationHubs-WestUS",
+      "serviceName": "touche862b",
+      "type": "blob",
+      "id": "2"
+    },
+    {
+      "appId": "",
+      "appPassword": "",
+      "endpoint": "http://localhost:3978/api/messages",
+      "type": "endpoint",
+      "name": "development",
+      "id": "3"
+    },
+    {
+      "appId": "c9fd3dc1-d51d-447e-97a1-85269781fffa",
+      "appPassword": "gitoJ4/1lGQEKmixvYUM+A==!H1QriiOnSACroK3H/HN1yeb8acjEHVoq4qzzdak7BI8=",
+      "endpoint": "https://touche.azurewebsites.net/api/messages",
+      "type": "endpoint",
+      "name": "production",
+      "id": "4"
+    },
+    {
+      "instrumentationKey": "fF4vXIJdtV/3KRwzycr1TQ==!ugOeJ2tnahe0LsQc0uXVf2FUbPvNL9zAInLj7dK93hoooN5u6ArpQrVHxTKNJPhR",
+      "applicationId": "79275d9e-01f5-4f70-9332-3aa8d50d2b8e",
+      "apiKeys": {},
+      "tenantId": "1fb029fa-7975-42f2-bec8-064957c4c143",
+      "subscriptionId": "43fda02f-e249-4b49-a426-dc02b4d82fcb",
+      "resourceGroup": "Default-NotificationHubs-WestUS",
+      "serviceName": "toucheijh7q3",
+      "type": "appInsights",
+      "id": "5"
+    }
+  ]
+}
