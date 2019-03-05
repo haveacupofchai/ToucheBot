@@ -1,6 +1,7 @@
+import os
+import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'pymodules')))
 from googleapiclient.discovery import build
-import sys
 
 my_api_key = "AIzaSyARKOEUmrOaeQLrQcbmkz6-q3hghbeA0JY"
 my_cse_id = "017294505077652159379:o6a_52asc2u"
