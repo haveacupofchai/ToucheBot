@@ -34,19 +34,39 @@ class EchoBot {
             let count = await this.countProperty.get(turnContext);
             count = count === undefined ? 1 : ++count;
             await turnContext.sendActivity(`Checking for spam "${ turnContext.activity.text }"`);
-            var spawn = require('child_process');
-            var pyProg = spawn.spawnSync('python', ['test.py', turnContext.activity.text]);
-            console.log('DataString outside is ', pyProg.stdout.toString());
-            console.log('DataString outside is ', pyProg.output.toString());
-            console.log('DataString outside is ', pyProg.status.toString());
-            console.log('DataString outside is ', pyProg.stderr.toString());
-            await turnContext.sendActivity(`${ pyProg.stdout.toString() }`);
+            var mongoClient = require('mongodb').MongoClient;
+            var input = turnContext.activity.text;
+            var timestamp = turnContext.activity.timestamp;
+            try {
+                var client = await mongoClient.connect('mongodb://touchecosmos:ai8DvhOqzvpDsk0otnjmO6475SCIDzfzrykNqy5Jie5BtujcDcZCtUfontWqkCTmksCT7521s3as0OUlYLCghQ%3D%3D@touchecosmos.documents.azure.com:10255/?ssl=true');
+                var db = client.db('testdb');
+
+                // var dateTime = new Date();
+                // console.log('Date Time ', dateTime);
+                console.log('Input ', input);
+                console.log('Timestamp', timestamp);
+                var result = await db.collection('Testcoll').insertOne({
+                    'timestamp': timestamp,
+                    'input': input
+                });
+                var spawn = require('child_process');
+                var pyProg = spawn.spawnSync('python', ['test.py', result.insertedId]);
+                console.log('DataString outside is ', pyProg.stdout.toString());
+                console.log('Inserted a document into the testdb collection.', result.insertedId);
+
+                await client.close();
+            } catch (err) {
+                console.log(err.stack);
+            }
+            // console.log('DataString outside is ', pyProg.status.toString());
+             console.log('DataString outside is ', pyProg.stderr.toString());
+            // await turnContext.sendActivity(`${ pyProg.stdout.toString() }`);
             await turnContext.sendActivity(`Checked for spam1 "${ turnContext.activity.text }"`);
             // increment and set turn counter.
             await this.countProperty.set(turnContext, count);
         } else {
             // Generic handler for all other activity types.
-            //await turnContext.sendActivity(`[${ turnContext.activity.type } event detected]`);
+            await turnContext.sendActivity(`[${ turnContext.activity.type } event detected]`);
         }
         // Save state changes
         await this.conversationState.saveChanges(turnContext);
