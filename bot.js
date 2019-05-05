@@ -35,6 +35,7 @@ class EchoBot {
             count = count === undefined ? 1 : ++count;
             await turnContext.sendActivity(`Searching for "${ turnContext.activity.text }"`);
             var mongoClient = require('mongodb').MongoClient;
+            var imageBase64Sting = "";
             if (turnContext.activity.attachments && turnContext.activity.attachments.length > 0) {
                 console.log('There is an attachment');
                 if (turnContext.activity.attachments[0].contentType === 'image/jpeg' || turnContext.activity.attachments[0].contentType === 'image/png') {
@@ -45,8 +46,21 @@ class EchoBot {
                         contentType: turnContext.activity.attachments[0].contentType,
                         contentUrl: turnContext.activity.attachments[0].contentUrl
                     }];
-                    reply.text = 'What am I supposed to do with this? Huh?';
+                    reply.text = 'Saving this image';
                     // Send the activity to the user.
+                    // Message with attachment, proceed to download it.
+                    // Skype & MS Teams attachment URLs are secured bya JwtToken, so we need to pass the token from our bot.
+                    var attachment = turnContext.activity.attachments[0];
+                    var request = require('request-promise').defaults({ encoding: null });
+                    var fileDownload = request(attachment.contentUrl);
+                    var prom = await fileDownload.then(
+                        function(response) {
+                            // convert image to base64 string
+                            imageBase64Sting = new Buffer(response, 'binary').toString('base64');
+                        }).catch(function(err) {
+                        console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
+                    });
+
                     await turnContext.sendActivity(reply);
                     // Stream image = await client.GetStreamAsync(attachment.ContentUrl);
                 }
@@ -58,10 +72,11 @@ class EchoBot {
                 // var dateTime = new Date();
                 // console.log('Date Time ', dateTime);
                 console.log('Input ', turnContext.activity.text);
-                console.log('Timestamp', turnContext.activity.timestamp);
+                console.log('Timestamp', turnContext.activity.timestamp.toString());
                 var result = await db.collection('Testcoll').insertOne({
-                    'timestamp': turnContext.activity.timestamp,
-                    'input': turnContext.activity.text
+                    'timestamp': turnContext.activity.timestamp.toString(),
+                    'input': turnContext.activity.text,
+                    'attachment': imageBase64Sting
                 });
                 var spawn = require('child_process');
                 var pyProg = spawn.spawnSync('python', ['test.py', result.insertedId]);
