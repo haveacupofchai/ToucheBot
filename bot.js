@@ -33,35 +33,49 @@ class EchoBot {
             // read from state.
             let count = await this.countProperty.get(turnContext);
             count = count === undefined ? 1 : ++count;
-            await turnContext.sendActivity(`Checking for spam "${ turnContext.activity.text }"`);
+            await turnContext.sendActivity(`Searching for "${ turnContext.activity.text }"`);
             var mongoClient = require('mongodb').MongoClient;
-            var input = turnContext.activity.text;
-            var timestamp = turnContext.activity.timestamp;
+            if (turnContext.activity.attachments && turnContext.activity.attachments.length > 0) {
+                console.log('There is an attachment');
+                if (turnContext.activity.attachments[0].contentType === 'image/jpeg' || turnContext.activity.attachments[0].contentType === 'image/png') {
+                    console.log('Attachment is jpg/png', turnContext.activity.attachments[0].contentUrl);
+                    const reply = { type: ActivityTypes.Message };
+                    reply.attachments = [{
+                        name: 'response.jpg',
+                        contentType: turnContext.activity.attachments[0].contentType,
+                        contentUrl: turnContext.activity.attachments[0].contentUrl
+                    }];
+                    reply.text = 'What am I supposed to do with this? Huh?';
+                    // Send the activity to the user.
+                    await turnContext.sendActivity(reply);
+                    // Stream image = await client.GetStreamAsync(attachment.ContentUrl);
+                }
+            }
             try {
                 var client = await mongoClient.connect('mongodb://touchecosmos:ai8DvhOqzvpDsk0otnjmO6475SCIDzfzrykNqy5Jie5BtujcDcZCtUfontWqkCTmksCT7521s3as0OUlYLCghQ%3D%3D@touchecosmos.documents.azure.com:10255/?ssl=true');
                 var db = client.db('testdb');
 
                 // var dateTime = new Date();
                 // console.log('Date Time ', dateTime);
-                console.log('Input ', input);
-                console.log('Timestamp', timestamp);
+                console.log('Input ', turnContext.activity.text);
+                console.log('Timestamp', turnContext.activity.timestamp);
                 var result = await db.collection('Testcoll').insertOne({
-                    'timestamp': timestamp,
-                    'input': input
+                    'timestamp': turnContext.activity.timestamp,
+                    'input': turnContext.activity.text
                 });
                 var spawn = require('child_process');
                 var pyProg = spawn.spawnSync('python', ['test.py', result.insertedId]);
-                console.log('DataString outside is ', pyProg.stdout.toString());
+                console.log('Immediate output is ', pyProg.stdout.toString());
                 console.log('Inserted a document into the testdb collection.', result.insertedId);
 
                 await client.close();
             } catch (err) {
                 console.log(err.stack);
             }
-            // console.log('DataString outside is ', pyProg.status.toString());
-             console.log('DataString outside is ', pyProg.stderr.toString());
-            // await turnContext.sendActivity(`${ pyProg.stdout.toString() }`);
-            await turnContext.sendActivity(`Checked for spam1 "${ turnContext.activity.text }"`);
+            console.log('Status ', pyProg.status.toString());
+            console.log('Error ', pyProg.stderr.toString());
+            await turnContext.sendActivity(`${ pyProg.stdout.toString() }`);
+            await turnContext.sendActivity(`Searched for "${ turnContext.activity.text }"`);
             // increment and set turn counter.
             await this.countProperty.set(turnContext, count);
         } else {
