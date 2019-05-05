@@ -2,7 +2,14 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'pymodules')))
 from googleapiclient.discovery import build
+import pymongo
+import json
+from bson.objectid import ObjectId
 
+uri = "mongodb://touchecosmos:ai8DvhOqzvpDsk0otnjmO6475SCIDzfzrykNqy5Jie5BtujcDcZCtUfontWqkCTmksCT7521s3as0OUlYLCghQ==@touchecosmos.documents.azure.com:10255/?ssl=true&replicaSet=globaldb"
+client = pymongo.MongoClient(uri)
+db=client['testdb']
+coll=db["Testcoll"]
 my_api_key = "AIzaSyARKOEUmrOaeQLrQcbmkz6-q3hghbeA0JY"
 my_cse_id = "017294505077652159379:o6a_52asc2u"
 num = 5
@@ -12,46 +19,20 @@ def google_search(search_term, api_key, cse_id, **kwargs):
     res = service.cse().list(q=search_term, cx=cse_id, sort="date", **kwargs).execute()
     return res['items']
 
-searchStr = ''
-toloop = len(sys.argv) - 1
-for i in range(0, toloop):
-    searchStr = searchStr + sys.argv[i+1] + ' '
+db_info=coll.find_one({"_id":ObjectId(sys.argv[1])})
+search_input=db_info["input"]
+
+searchStr=''
+output_result=''
+searchStr = searchStr + search_input
 
 results = google_search(
-    sys.argv[1], my_api_key, my_cse_id, num=num)
+    searchStr, my_api_key, my_cse_id, num=num)
 
-for i in range(0,num):
-    print(results[i]['title'] + " Link: " + results[i]['link'])
-    
-#import os
-#import sys
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'pymodules')))
-#import requests
-#from bs4 import BeautifulSoup
+if len(results) > 0:
+    output_result=output_result + results[0]['title'] + " Link: " + results[0]['link']
+else:
+    output_result='Nothing found'
 
-#def web(page):
-#    count = len(sys.argv)
-#    i = 1
-#    searchStr = ''
-#    while (count > 1):
-#        if searchStr == '':
-#            searchStr = sys.argv[i]
-#            i = i + 1
-#        else:
-#            searchStr = searchStr + '+' + sys.argv[i]
-#            i = i + 1
-#        count = count - 1
-#    print(searchStr)
-#    url = 'https://check4spam.com/?s=' + searchStr
-#    if(page>0):
-#        code = requests.get(url)
-#        plain = code.text
-#        s = BeautifulSoup(plain, "html.parser")
-        #print(s.find_all('a'))
-#        for link in s.findAll('a', {'class':'post-title'}):
-            #print(link.get_text())
-            #tet = link.get('title')
-            #print(tet)
-#            tet_2 = link.get('href')
-#            print(tet_2)
-#web(1)
+print(output_result)
+coll.update_one({"_id":ObjectId(sys.argv[1])},{"$set":{"ouput": output_result}});
