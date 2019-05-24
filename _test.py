@@ -72,4 +72,4 @@ else:
     output_result='Nothing found'
 
 print(output_result)
-coll.update_one({"_id":ObjectId(sys.argv[1])},{"$set":{"ouput": output_result}});
+coll.update_one({"_id":ObjectId(sys.argv[1])},{"$set":{"output": output_result}});

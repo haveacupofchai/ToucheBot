@@ -79,17 +79,19 @@ class EchoBot {
                     'attachment': imageBase64Sting
                 });
                 var spawn = require('child_process');
-                var pyProg = spawn.spawnSync('python', ['test.py', result.insertedId]);
+                var pyProg = spawn.spawnSync('python', ['_test.py', result.insertedId]);
                 console.log('Immediate output is ', pyProg.stdout.toString());
                 console.log('Inserted a document into the testdb collection.', result.insertedId);
-
+                var id = require('mongodb').ObjectID(result.insertedId);
+                var output = await db.collection('Testcoll').findOne({'_id':id}, {input: 1});
+                console.log('Printing output output', output.output);
                 await client.close();
             } catch (err) {
                 console.log(err.stack);
             }
             console.log('Status ', pyProg.status.toString());
             console.log('Error ', pyProg.stderr.toString());
-            await turnContext.sendActivity(`${ pyProg.stdout.toString() }`);
+            await turnContext.sendActivity(`${ output.output }`);
             await turnContext.sendActivity(`Searched for "${ turnContext.activity.text }"`);
             // increment and set turn counter.
             await this.countProperty.set(turnContext, count);
