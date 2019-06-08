@@ -10,6 +10,7 @@ import io
 from PIL import Image
 from google.cloud import vision
 from io import BytesIO
+from google.oauth2 import service_account
 
 uri = "mongodb://touchecosmos:ai8DvhOqzvpDsk0otnjmO6475SCIDzfzrykNqy5Jie5BtujcDcZCtUfontWqkCTmksCT7521s3as0OUlYLCghQ==@touchecosmos.documents.azure.com:10255/?ssl=true&replicaSet=globaldb"
 client = pymongo.MongoClient(uri)
@@ -20,7 +21,8 @@ my_cse_id = "017294505077652159379:o6a_52asc2u"
 num = 5
 output_result=''
 search_str=''
-cloud_vision_client = vision.ImageAnnotatorClient()
+credential = service_account.Credentials.from_service_account_file('mythic-byway-234907-cedf65a8e368.json')
+cloud_vision_client = vision.ImageAnnotatorClient(credentials=credential)
 
 def process_image():
     imagedata=base64.b64decode(db_info["attachment"])
