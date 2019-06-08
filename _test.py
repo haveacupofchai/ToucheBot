@@ -20,19 +20,31 @@ my_cse_id = "017294505077652159379:o6a_52asc2u"
 num = 5
 output_result=''
 search_str=''
+cloud_vision_client = vision.ImageAnnotatorClient()
 
 def process_image():
     imagedata=base64.b64decode(db_info["attachment"])
-    filename='temp.jpg'
-    with open(filename, 'wb') as f:
-        f.write(imagedata)
+    return imagedata
 
-def detect_text():
-    client = vision.ImageAnnotatorClient()
-    with io.open('temp.jpg', 'rb') as image_file:
-        content = image_file.read()
-    image = vision.types.Image(content=content)
-    response = client.text_detection(image=image)
+def reverse_image_search(imagedata):
+    image = vision.types.Image(content=imagedata)
+    web_detection = cloud_vision_client.web_detection(image=image).web_detection
+
+    if web_detection.pages_with_matching_images:
+        print('\n{} Pages with matching images retrieved fin'.format(
+            len(web_detection.pages_with_matching_images)))
+
+        for page in web_detection.pages_with_matching_images:
+            print('Url   : {}'.format(page.url))
+
+    if len(web_detection.pages_with_matching_images) > 0:
+        return web_detection.pages_with_matching_images[0].url
+
+    return ''
+
+def detect_text(imagedata):
+    image = vision.types.Image(content=imagedata)
+    response = cloud_vision_client.text_detection(image=image)
     texts = response.text_annotations
     total_text = ''
     for text in texts:
@@ -55,21 +67,25 @@ db_info=coll.find_one({"_id":ObjectId(sys.argv[1])})
 input_text=db_info["input"]
 
 if not input_text:
-    process_image()
-    search_str = detect_text()
+    imagedata = process_image()
+    output_result = reverse_image_search(imagedata)
+    if output_result == '':
+        search_str = detect_text(imagedata)
 else:
     search_str = search_str + input_text
 
-results = google_search(
-    search_str, my_api_key, my_cse_id, num=num)
+if search_str != '':
+    results = google_search(
+        search_str, my_api_key, my_cse_id, num=num)
 
 #for i in range(0,len(results)):
 #    print(results[i]['title'] + " Link: " + results[i]['link'])
 
-if len(results) > 0:
-    output_result=output_result + results[0]['title'] + " Link: " + results[0]['link']
-else:
-    output_result='Nothing found'
+if output_result == '':
+    if len(results) > 0:
+        output_result=output_result + results[0]['title'] + " Link: " + results[0]['link']
+    else:
+        output_result='Nothing found'
 
 print(output_result)
 coll.update_one({"_id":ObjectId(sys.argv[1])},{"$set":{"output": output_result}});

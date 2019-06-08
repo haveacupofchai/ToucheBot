@@ -33,21 +33,13 @@ class EchoBot {
             // read from state.
             let count = await this.countProperty.get(turnContext);
             count = count === undefined ? 1 : ++count;
-            await turnContext.sendActivity(`Searching for "${ turnContext.activity.text }"`);
+            await turnContext.sendActivity(`Searching`);
             var mongoClient = require('mongodb').MongoClient;
             var imageBase64Sting = "";
             if (turnContext.activity.attachments && turnContext.activity.attachments.length > 0) {
                 console.log('There is an attachment');
                 if (turnContext.activity.attachments[0].contentType === 'image/jpeg' || turnContext.activity.attachments[0].contentType === 'image/png') {
                     console.log('Attachment is jpg/png', turnContext.activity.attachments[0].contentUrl);
-                    const reply = { type: ActivityTypes.Message };
-                    reply.attachments = [{
-                        name: 'response.jpg',
-                        contentType: turnContext.activity.attachments[0].contentType,
-                        contentUrl: turnContext.activity.attachments[0].contentUrl
-                    }];
-                    reply.text = 'Saving this image';
-                    // Send the activity to the user.
                     // Message with attachment, proceed to download it.
                     // Skype & MS Teams attachment URLs are secured bya JwtToken, so we need to pass the token from our bot.
                     var attachment = turnContext.activity.attachments[0];
@@ -60,9 +52,6 @@ class EchoBot {
                         }).catch(function(err) {
                         console.log('Error downloading attachment:', { statusCode: err.statusCode, message: err.response.statusMessage });
                     });
-
-                    await turnContext.sendActivity(reply);
-                    // Stream image = await client.GetStreamAsync(attachment.ContentUrl);
                 }
             }
             try {
@@ -92,7 +81,6 @@ class EchoBot {
             console.log('Status ', pyProg.status.toString());
             console.log('Error ', pyProg.stderr.toString());
             await turnContext.sendActivity(`${ output.output }`);
-            await turnContext.sendActivity(`Searched for "${ turnContext.activity.text }"`);
             // increment and set turn counter.
             await this.countProperty.set(turnContext, count);
         } else {
