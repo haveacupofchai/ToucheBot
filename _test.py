@@ -36,11 +36,14 @@ def reverse_image_search(imagedata):
         print('\n{} Pages with matching images retrieved fin'.format(
             len(web_detection.pages_with_matching_images)))
 
+        list_file = open("factlist.txt","r+") 
+        list = list_file.read().splitlines()
+
         for page in web_detection.pages_with_matching_images:
             print('Url   : {}'.format(page.url))
-
-    if len(web_detection.pages_with_matching_images) > 0:
-        return web_detection.pages_with_matching_images[0].url
+            result = any(substring in web_detection.pages_with_matching_images[0].url for substring in list)
+            if result == True:
+                return web_detection.pages_with_matching_images[0].url
 
     return ''
 
